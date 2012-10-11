@@ -74,7 +74,7 @@ public class SearchCmd {
         // Read the file and create the linked list
         HTMLlist l = Searcher.readHtmlList (args[0]);
         */
-        HTMLlist l = Searcher.readHtmlList ("data\\itcwww-small.txt");
+        HTMLlist l = Searcher.readHtmlList ("data/itcwww-small.txt");
 
         // Ask for a word to search
         BufferedReader inuser =
