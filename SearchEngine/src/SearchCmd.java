@@ -8,11 +8,12 @@ import java.util.ArrayList;
 
 class HTMLlist {
     String str;
-    HTMLlist next;
+    HTMLlist next,prev;
 
-    HTMLlist (String s, HTMLlist n) {
+    HTMLlist (String s, HTMLlist n, HTMLlist p) {
         str = s;
         next = n;
+        prev = p;
     }
 }
 
@@ -21,7 +22,15 @@ class Searcher {
     public static int exists (HTMLlist l, String word) {
         int wordPosition = 0; //What is the position of the word?
     	while (l != null) {
-            if (l.str.equals (word)) {
+    		if (l.str.equals (word)) {
+            	while (l != null) {
+            		if (l.str.substring(0,1).equals("*")) {
+                        return wordPosition;
+                    } else {
+                    	wordPosition--;
+                    }
+                    l = l.prev;
+            	}   
                 return wordPosition;
             } else {
             	wordPosition++;
@@ -41,12 +50,13 @@ class Searcher {
         BufferedReader infile = new BufferedReader(new FileReader(filename));
 
         name = infile.readLine(); //Read the first line
-        start = new HTMLlist (name, null);
+        start = new HTMLlist (name, null,null);
         current = start;
         name = infile.readLine(); // Read the next line
         while (name != null) {    // Exit if there is none
-            tmp = new HTMLlist(name,null);
+            tmp = new HTMLlist(name,null,null);
             current.next = tmp;
+            tmp.prev = current;
             current = tmp;            // Update the linked list
             name = infile.readLine(); // Read the next line
         }
