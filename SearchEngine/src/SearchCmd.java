@@ -4,43 +4,51 @@
 */
 
 import java.io.*;
-import java.util.ArrayList;
 
 class HTMLlist {
     String str;
-    HTMLlist next,prev;
+    HTMLlist next;
 
-    HTMLlist (String s, HTMLlist n, HTMLlist p) {
+    HTMLlist (String s, HTMLlist n) {
         str = s;
         next = n;
-        prev = p;
     }
 }
 
 class Searcher {
 
-    public static int exists (HTMLlist l, String word) {
-        int wordPosition = 0; //What is the position of the word?
-    	while (l != null) {
-    		if (l.str.equals (word)) {
-            	while (l != null) {
-            		if (l.str.substring(0,1).equals("*")) {
-                        return wordPosition;
-                    } else {
-                    	wordPosition--;
-                    }
-                    l = l.prev;
-            	}   
-                return wordPosition;
-            } else {
-            	wordPosition++;
+    public static boolean exists (HTMLlist l, String word) {
+        while (l != null) {
+        		if (l.str.equals (word)) {
+                return true;
             }
             l = l.next;
         }
-        return -1;
+        return false;
+        
+      
     }
     
-   
+    
+    public static void find(HTMLlist l, String word) {
+    	
+    	int hits = 0;
+    	
+    	String currentPage = "", prevPage = "";
+    	
+        while (l != null) {
+        	if (l.str.startsWith("*PAGE")) {
+        		currentPage = l.str.substring(6);
+        	}
+    		if (l.str.equals (word) && !currentPage.equals(prevPage)) {
+        		prevPage = currentPage;
+        		System.out.println(currentPage);
+        		hits += 1;
+    		}
+            l = l.next;
+        }
+        System.out.println("Number of page hits for \"" + word + "\": " + " " + hits);
+	}
 
     public static HTMLlist readHtmlList (String filename) throws IOException {
         String name;
@@ -49,14 +57,15 @@ class Searcher {
         // Open the file given as argument
         BufferedReader infile = new BufferedReader(new FileReader(filename));
 
+        
+        
         name = infile.readLine(); //Read the first line
-        start = new HTMLlist (name, null,null);
+        start = new HTMLlist (name, null);
         current = start;
         name = infile.readLine(); // Read the next line
         while (name != null) {    // Exit if there is none
-            tmp = new HTMLlist(name,null,null);
+            tmp = new HTMLlist(name,null);
             current.next = tmp;
-            tmp.prev = current;
             current = tmp;            // Update the linked list
             name = infile.readLine(); // Read the next line
         }
@@ -70,11 +79,7 @@ public class SearchCmd {
 
     public static void main (String[] args) throws IOException {
         String name;
-        
-        ArrayList<String> links = new ArrayList<String>(); //Create a list of links that have been found
 
-
-        /*
         // Check that a filename has been given as argument
         if (args.length != 1) {
             System.out.println("Usage: java SearchCmd <datafile>");
@@ -83,8 +88,6 @@ public class SearchCmd {
 
         // Read the file and create the linked list
         HTMLlist l = Searcher.readHtmlList (args[0]);
-        */
-        HTMLlist l = Searcher.readHtmlList ("data/itcwww-small.txt");
 
         // Ask for a word to search
         BufferedReader inuser =
@@ -97,11 +100,17 @@ public class SearchCmd {
             name = inuser.readLine(); // Read a line from the terminal
             if (name == null || name.length() == 0) {
                 quit = true;
-            } else if (Searcher.exists (l, name)!=-1) {
-                System.out.println ("The word \""+name+"\" has been found at position: "+Searcher.exists (l, name));
+            }
+           Searcher.find(l, name);
+           
+            /*else if (Searcher.find (l, name)) {
+            	
+            	
+                System.out.println ("The word \""+name+"\" has been found.");
+                System.out.println("On page: " + Searcher.currentPage);
             } else {
                 System.out.println ("The word \""+name+"\" has NOT been found.");
-            }
+            }*/
         }
     }
 }
